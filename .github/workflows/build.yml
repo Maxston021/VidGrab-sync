@@ -133,6 +133,15 @@ jobs:
         export FFMPEG_DEST=$FFMPEG_DEST
         export THEOS=$THEOS
         bash $GITHUB_WORKSPACE/tools/build_ffmpeg_ios.sh
+        echo "=== Running llvm-ranlib on static libraries ==="
+        for lib in $FFMPEG_DEST/lib/*.a; do
+          echo "Processing: $lib"
+          llvm-ranlib "$lib" 2>&1 || ranlib "$lib" 2>&1 || true
+          echo "  Archive header:"
+          ar t "$lib" 2>&1 | head -5
+          echo "  Symbol count:"
+          nm "$lib" 2>&1 | grep -c " T " || echo "  0 symbols (or nm failed)"
+        done
         ls -la $FFMPEG_DEST/lib/
 
     - name: Prepare yt-dlp and Python packages
