@@ -194,21 +194,15 @@ jobs:
         find /usr/lib/llvm* -name "libclang_rt*" 2>/dev/null | head -20
         clang --print-resource-dir 2>&1 || true
         ls -la $(clang --print-resource-dir)/lib/ 2>&1 | head -20 || true
-        make clean
-        make FINALPACKAGE=1 2>&1 | tee build.log | tail -50
-        MAKE_EXIT=$?
+        make clean || true
+        make FINALPACKAGE=1 2>&1 | tee build.log | tail -80
+        MAKE_EXIT=${PIPESTATUS[0]}
         echo "=== Exit code: $MAKE_EXIT ==="
         if [ $MAKE_EXIT -ne 0 ]; then
-          echo "=== Build failed, showing linker command ==="
-          grep "clang++" build.log | grep -v "warning" | tail -5
-          echo "=== Running linker manually with verbose output ==="
-          LINK_CMD=$(grep "clang++.*-o.*VidGrab" build.log | tail -1)
-          if [ -n "$LINK_CMD" ]; then
-            echo "Link command: $LINK_CMD"
-            eval "$LINK_CMD -v" 2>&1 | tail -100
-          fi
-          echo "=== Showing all ld64.lld errors ==="
-          grep "ld64.lld: error" build.log | head -50
+          echo "=== Build failed, showing full build.log ==="
+          cat build.log | tail -200
+          echo "=== Showing all errors ==="
+          grep -i "error:" build.log | head -50 || true
           exit 1
         fi
         echo "=== App bundle contents ==="
