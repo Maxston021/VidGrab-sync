@@ -4,7 +4,8 @@ include $(THEOS)/makefiles/common.mk
 
 TOOL_NAME = VidGrabHUD
 VidGrabHUD_FILES = $(wildcard src/*.mm src/*.m)
-VidGrabHUD_CFLAGS = -fobjc-arc -fno-modules -Iheaders -Isrc -include src/prefix.pch -Wno-unguarded-availability-new -Wno-deprecated-declarations
+VidGrabHUD_CFLAGS = -fobjc-arc -fno-modules -Xclang -fno-modules -Iheaders -Isrc -Wno-unguarded-availability-new -Wno-deprecated-declarations
+PREFIX_HEADER =
 VidGrabHUD_CCFLAGS = -std=c++14
 VidGrabHUD_LDFLAGS = -Flibraries -Llibraries
 VidGrabHUD_FRAMEWORKS = UIKit Foundation CoreGraphics QuartzCore IOKit
