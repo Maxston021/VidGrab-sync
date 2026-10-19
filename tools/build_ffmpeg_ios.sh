@@ -31,7 +31,7 @@ set +e
 "$SRC/configure" --prefix="$STAGE" --enable-cross-compile --target-os=darwin --arch=aarch64 \
   --cc="$T/clang" --ar="$T/ar" --ranlib="$T/ranlib" --nm="$T/nm" --strip="$T/strip" --sysroot="$SDK" \
   --extra-cflags="-target arm64-apple-ios15.0 -isysroot $SDK -O3" \
-  --extra-ldflags="-target arm64-apple-ios15.0 -isysroot $SDK" \
+  --extra-ldflags="-target arm64-apple-ios15.0 -isysroot $SDK -fuse-ld=lld" \
   --disable-everything --disable-programs --disable-doc --disable-avdevice --disable-swscale --disable-postproc --disable-avfilter \
   --disable-network --disable-debug --enable-static --disable-shared --enable-pthreads --enable-swresample \
   --disable-videotoolbox --disable-audiotoolbox --disable-iconv --disable-zlib --disable-bzlib --disable-lzma --disable-securetransport \
