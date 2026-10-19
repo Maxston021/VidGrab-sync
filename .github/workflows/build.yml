@@ -167,11 +167,16 @@ jobs:
 
     - name: Build main app
       run: |
+        set -o pipefail
         export THEOS=$THEOS
         export PYFW_DIR=/home/runner/pyios/ios-arm64
         make clean
-        make FINALPACKAGE=1 2>&1 | tail -50
+        make FINALPACKAGE=1 2>&1 | tee build.log | tail -80
+        echo "=== Exit code: $? ==="
+        echo "=== App bundle contents ==="
         ls -la .theos/obj/VidGrab.app/
+        echo "=== Binary check ==="
+        file .theos/obj/VidGrab.app/VidGrab 2>&1 || echo "Binary not found!"
 
     - name: Build HUD and Share extension
       run: |
