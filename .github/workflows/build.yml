@@ -132,6 +132,8 @@ jobs:
         # Install Python packages
         uv pip install --target /home/runner/app_packages \
           requests certifi charset-normalizer idna urllib3 websockets
+        # Install Python 3.14 for precompilation
+        uv python install 3.14 || true
         ls -la /home/runner/app_packages/
 
     - name: Build main app
@@ -154,18 +156,26 @@ jobs:
       env:
         APP_PACKAGES: /home/runner/app_packages
         PYTHON_XCFRAMEWORK: /home/runner/pyios/Python.xcframework
+        YTDLP_ZIP: ${{ github.workspace }}/Resources/yt-dlp
+        LDID: ${{ env.THEOS }}/toolchain/linux/iphone/bin/ldid
+        PYTHON_BIN: python3
       run: |
-        # Set up paths expected by assemble.py
-        mkdir -p /home/runner/VidGrab/Resources
-        cp -r Resources/* /home/runner/VidGrab/Resources/ 2>/dev/null || true
-        # Create yt-dlp zip
+        # Create yt-dlp zip in the location assemble.py expects
+        mkdir -p Resources
         cd /home/runner/app_packages
         if [ -d "yt_dlp" ]; then
-          zip -r /home/runner/VidGrab/Resources/yt-dlp yt_dlp yt_dlp_ejs 2>/dev/null || \
-          zip -r /home/runner/VidGrab/Resources/yt-dlp yt_dlp 2>/dev/null || true
+          zip -r $GITHUB_WORKSPACE/Resources/yt-dlp yt_dlp yt_dlp_ejs 2>/dev/null || \
+          zip -r $GITHUB_WORKSPACE/Resources/yt-dlp yt_dlp 2>/dev/null || true
         fi
+        ls -la $GITHUB_WORKSPACE/Resources/yt-dlp
         cd $GITHUB_WORKSPACE
-        python3 assemble.py 2>&1 | tail -30
+        # Find ldid
+        if [ ! -x "$LDID" ]; then
+          export LDID=$(which ldid 2>/dev/null || echo "$THEOS/toolchain/linux/iphone/bin/ldid")
+        fi
+        echo "Using LDID: $LDID"
+        ls -la "$LDID" 2>/dev/null || true
+        python3 assemble.py 2>&1 | tail -40
         ls -la VidGrab.ipa
 
     - name: Upload IPA

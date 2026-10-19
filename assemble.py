@@ -18,9 +18,15 @@ SLICE = os.path.join(XC, 'ios-arm64')
 PY314 = os.environ.get('PYTHON_BIN', None)
 if not PY314:
     try:
-        PY314 = subprocess.check_output(['uv', 'python', 'find', '3.14'], text=True).strip()
+        result = subprocess.run(['uv', 'python', 'find', '3.14'],
+                                capture_output=True, text=True, timeout=30)
+        if result.returncode == 0 and result.stdout.strip():
+            PY314 = result.stdout.strip()
+        else:
+            PY314 = 'python3'
     except Exception:
         PY314 = 'python3'
+print(f'Using Python for precompile: {PY314}')
 LDID = os.environ.get('LDID', '/root/theos/toolchain/linux/iphone/bin/ldid')
 YTDLP_ZIP = os.environ.get('YTDLP_ZIP', os.path.join(HERE, 'Resources', 'yt-dlp'))
 PKGS = os.environ.get('APP_PACKAGES', '/root/app_packages')
