@@ -82,6 +82,8 @@ int vg_audio_wav(const char *in, const char *out,
                  vg_progress_cb progress, vg_cancel_cb cancel, void *ctx,
                  char *err, size_t errlen);
 
+#pragma clang diagnostic pop
+
 #ifdef __OBJC__
 #import <Foundation/Foundation.h>
 
@@ -106,7 +108,5 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 #endif
-
-#pragma clang diagnostic pop
 
 #endif
