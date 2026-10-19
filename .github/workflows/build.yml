@@ -132,15 +132,24 @@ jobs:
         #define HAVE_LIMITS_H 1
         #define HAVE_ERRNO_H 1
         #define HAVE_FCNTL_H 1
-        #define LAME_STDINT_H 1
-        #define ieee854_float32_t float
-        #define ieee854_float64_t double
+        #define HAVE_STDLIB_H 1
+        #define HAVE_STRCHR 1
+        #define HAVE_MEMCPY 1
+        #define HAVE_MEMMOVE 1
+        #define HAVE_MEMSET 1
+        #define HAVE_STRCPY 1
+        #define HAVE_STRNCPY 1
+        #define HAVE_STRCMP 1
+        #define HAVE_STRNCMP 1
+        #define ieee754_float32_t float
+        #define ieee754_float64_t double
         #define FLOAT 1
         #define HAVE_NASM 0
+        #define WORDS_BIGENDIAN 0
         EOF
         # Compile all libmp3lame source files
         mkdir -p obj
-        CFLAGS="-I. -Iinclude -Ilibmp3lame -Ilibmp3lame/vector -arch arm64 -isysroot $SDK -target arm64-apple-ios15.0 -O3 -DNDEBUG -include stdlib.h -include string.h -include strings.h -Wno-implicit-function-declaration -Wno-shift-negative-value -Wno-tautological-pointer-compare"
+        CFLAGS="-I. -Iinclude -Ilibmp3lame -Ilibmp3lame/vector -arch arm64 -isysroot $SDK -target arm64-apple-ios15.0 -O3 -DNDEBUG -include stdlib.h -include string.h -include strings.h -DHAVE_MEMCPY -DHAVE_STRCHR -DHAVE_MEMMOVE -DHAVE_MEMSET -DHAVE_STRNCPY -DHAVE_STRNCMP -Wno-implicit-function-declaration -Wno-shift-negative-value -Wno-tautological-pointer-compare -Wno-macro-redefined -Wno-deprecated-non-prototype"
         for f in libmp3lame/*.c; do
           echo "Compiling $f"
           clang $CFLAGS -c "$f" -o "obj/$(basename $f .c).o" || exit 1
