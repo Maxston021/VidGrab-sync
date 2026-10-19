@@ -5,6 +5,7 @@ include $(THEOS)/makefiles/common.mk
 APPEX_NAME = VGBubbleStarter
 VGBubbleStarter_FILES = VGBubbleStarter.m
 VGBubbleStarter_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
+VGBubbleStarter_LDFLAGS = -fuse-ld=lld
 VGBubbleStarter_FRAMEWORKS = Foundation
 VGBubbleStarter_CODESIGN_FLAGS = -S
 VGBubbleStarter_INSTALL_PATH = /Applications/VidGrab.app/PlugIns

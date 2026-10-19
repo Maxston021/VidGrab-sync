@@ -5,6 +5,7 @@ include $(THEOS)/makefiles/common.mk
 APPEX_NAME = VGShare
 VGShare_FILES = VGShareViewController.m
 VGShare_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
+VGShare_LDFLAGS = -fuse-ld=lld
 VGShare_FRAMEWORKS = UIKit Foundation UniformTypeIdentifiers MobileCoreServices
 VGShare_CODESIGN_FLAGS = -S
 VGShare_INSTALL_PATH = /Applications/VidGrab.app/PlugIns
