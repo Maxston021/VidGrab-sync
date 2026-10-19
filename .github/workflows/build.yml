@@ -24,7 +24,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential clang lld git curl wget python3 python3-pip \
           libxml2-dev libssl-dev zlib1g-dev xz-utils cpio pkg-config zip unzip \
-          libplist-dev libplist++-dev
+          libplist-dev libplist++-dev llvm
         # Install clang-15 for better module support
         sudo apt-get install -y clang-15 lld-15 || true
         pip3 install uv
@@ -134,13 +134,14 @@ jobs:
         export THEOS=$THEOS
         bash $GITHUB_WORKSPACE/tools/build_ffmpeg_ios.sh
         echo "=== Running llvm-ranlib on static libraries ==="
+        which llvm-ranlib || echo "llvm-ranlib not found"
         for lib in $FFMPEG_DEST/lib/*.a; do
           echo "Processing: $lib"
-          llvm-ranlib "$lib" 2>&1 || ranlib "$lib" 2>&1 || true
+          llvm-ranlib "$lib" 2>&1
           echo "  Archive header:"
-          ar t "$lib" 2>&1 | head -5
-          echo "  Symbol count:"
-          nm "$lib" 2>&1 | grep -c " T " || echo "  0 symbols (or nm failed)"
+          ar t "$lib" 2>&1 | head -3
+          echo "  Symbol count (llvm-nm):"
+          llvm-nm "$lib" 2>&1 | grep -c " T " || echo "  0 symbols"
         done
         ls -la $FFMPEG_DEST/lib/
 
