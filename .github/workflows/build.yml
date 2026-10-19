@@ -125,10 +125,24 @@ jobs:
         mkdir -p /home/runner/app_packages
         cd /home/runner/app_packages
         # Download yt-dlp
+        echo "Downloading yt-dlp ${YTDLP_VER}..."
         curl -fL -o yt-dlp.tar.gz "https://github.com/yt-dlp/yt-dlp/releases/download/${YTDLP_VER}/yt-dlp.tar.gz" || \
         curl -fL -o yt-dlp.tar.gz "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.tar.gz"
+        echo "Download size: $(ls -la yt-dlp.tar.gz | awk '{print $5}')"
+        echo "=== tar contents (first 20) ==="
+        tar -tzf yt-dlp.tar.gz | head -20
         tar -xzf yt-dlp.tar.gz
         rm yt-dlp.tar.gz
+        echo "=== After extract ==="
+        ls -la
+        # If yt-dlp dir exists, move yt_dlp out
+        if [ -d "yt-dlp" ] && [ -d "yt-dlp/yt_dlp" ]; then
+          echo "Moving yt_dlp from yt-dlp subdir"
+          mv yt-dlp/yt_dlp .
+          rm -rf yt-dlp
+        fi
+        echo "=== Final yt_dlp check ==="
+        ls -la yt_dlp/ | head -5
         # Install Python packages
         uv pip install --target /home/runner/app_packages \
           requests certifi charset-normalizer idna urllib3 websockets
