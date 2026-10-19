@@ -114,12 +114,7 @@ jobs:
         curl -fL -o lame.tar.gz "https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz"
         tar -xzf lame.tar.gz
         cd lame-3.100
-        export SDK=$THEOS/sdks/iPhoneOS17.0.sdk
-        # Use system clang with cross-compile flags (Theos on Linux uses system clang)
-        export CC="clang -arch arm64 -isysroot $SDK -target arm64-apple-ios15.0"
-        export AR="ar"
-        export RANLIB="ranlib"
-        # Manual compile: generate config.h and compile libmp3lame
+        # Generate a minimal config.h for iOS arm64
         cat > config.h << 'EOF'
         #define HAVE_STDINT_H 1
         #define HAVE_INTTYPES_H 1
@@ -141,24 +136,47 @@ jobs:
         #define HAVE_STRNCPY 1
         #define HAVE_STRCMP 1
         #define HAVE_STRNCMP 1
+        #define HAVE_CALLOC 1
+        #define HAVE_FABS 1
+        #define HAVE_FLOOR 1
+        #define HAVE_CEIL 1
+        #define HAVE_SQRT 1
+        #define HAVE_POW 1
+        #define HAVE_LOG 1
+        #define HAVE_EXP 1
+        #define HAVE_SIN 1
+        #define HAVE_COS 1
+        #define HAVE_ABS 1
+        #define HAVE_FREE 1
         #define ieee754_float32_t float
         #define ieee754_float64_t double
-        #define FLOAT 1
         #define HAVE_NASM 0
         #define WORDS_BIGENDIAN 0
+        #define SIZEOF_INT 4
+        #define SIZEOF_LONG 4
+        #define SIZEOF_SHORT 2
+        #define SIZEOF_CHAR 1
+        #define SIZEOF_LONG_LONG 8
+        #define SIZEOF_FLOAT 4
+        #define SIZEOF_DOUBLE 8
         EOF
-        # Compile all libmp3lame source files
-        mkdir -p obj
-        CFLAGS="-I. -Iinclude -Ilibmp3lame -Ilibmp3lame/vector -arch arm64 -isysroot $SDK -target arm64-apple-ios15.0 -O3 -DNDEBUG -include stdlib.h -include string.h -include strings.h -DHAVE_CONFIG_H -DHAVE_MEMCPY -DHAVE_STRCHR -DHAVE_MEMMOVE -DHAVE_MEMSET -DHAVE_STRNCPY -DHAVE_STRNCMP -D'ieee754_float32_t=float' -D'ieee754_float64_t=double' -Wno-implicit-function-declaration -Wno-shift-negative-value -Wno-tautological-pointer-compare -Wno-macro-redefined -Wno-deprecated-non-prototype"
-        for f in libmp3lame/*.c; do
-          echo "Compiling $f"
-          clang $CFLAGS -c "$f" -o "obj/$(basename $f .c).o" || exit 1
-        done
-        # Create static library
-        ar rcs $FFMPEG_DEST/lib/libmp3lame.a obj/*.o
-        ranlib $FFMPEG_DEST/lib/libmp3lame.a
-        # Install headers
-        cp include/lame.h $FFMPEG_DEST/include/lame/
+        # Build with Theos (handles cross-compile correctly)
+        mkdir -p theos-build
+        cd theos-build
+        cat > Makefile << 'EOF'
+        ARCHS = arm64
+        TARGET = iphone:clang:17.0:15.0
+        include $(THEOS)/makefiles/common.mk
+        LIBRARY_NAME = lame
+        lame_FILES = $(wildcard ../libmp3lame/*.c)
+        lame_CFLAGS = -I.. -I../include -I../libmp3lame -I../libmp3lame/vector -DHAVE_CONFIG_H -Wno-implicit-function-declaration -Wno-shift-negative-value -Wno-tautological-pointer-compare -Wno-macro-redefined -Wno-deprecated-non-prototype -Wno-deprecated-declarations -include stdlib.h -include string.h
+        include $(THEOS_MAKE_PATH)/library.mk
+        EOF
+        make clean
+        make FINALPACKAGE=1
+        # Copy output
+        cp .theos/obj/liblame.a $FFMPEG_DEST/lib/libmp3lame.a
+        cp ../include/lame.h $FFMPEG_DEST/include/lame/
         ls -la $FFMPEG_DEST/lib/libmp3lame.a
 
     - name: Build FFmpeg
