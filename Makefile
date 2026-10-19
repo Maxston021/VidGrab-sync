@@ -11,7 +11,7 @@ APPLICATION_NAME = VidGrab
 VidGrab_FILES = $(wildcard Sources/*.m) Sources/vgconvert.c whisper/ggml.c whisper/ggml-alloc.c whisper/ggml-backend.c whisper/ggml-quants.c whisper/whisper.cpp
 VidGrab_FRAMEWORKS = Accelerate PhotosUI UIKit Foundation AVFoundation AVKit CoreMedia Photos JavaScriptCore CoreVideo WebKit LocalAuthentication MediaPlayer UserNotifications Security AudioToolbox UniformTypeIdentifiers Network
 VidGrab_CFLAGS = -fobjc-arc -F$(PYFW_DIR) -Wno-deprecated-declarations -Wno-unused-function -I$(FFMPEG_DIR)/include -Iwhisper -DGGML_USE_ACCELERATE -DNDEBUG -O3
-VidGrab_LDFLAGS = -fuse-ld=lld -F$(PYFW_DIR) -framework Python -Wl,-rpath,@executable_path/Frameworks -Wl,-all_load $(FFMPEG_DIR)/lib/libavformat.a $(FFMPEG_DIR)/lib/libavcodec.a $(FFMPEG_DIR)/lib/libswresample.a $(FFMPEG_DIR)/lib/libavutil.a -lc++
+VidGrab_LDFLAGS = -fuse-ld=lld -F$(PYFW_DIR) -framework Python -Wl,-rpath,@executable_path/Frameworks -L$(FFMPEG_DIR)/lib -lavformat -lavcodec -lswresample -lavutil -lc++
 VidGrab_CODESIGN_FLAGS = -S
 
 include $(THEOS_MAKE_PATH)/application.mk
