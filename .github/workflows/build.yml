@@ -115,9 +115,20 @@ jobs:
         tar -xzf lame.tar.gz
         cd lame-3.100
         export SDK=$THEOS/sdks/iPhoneOS17.0.sdk
-        export CC="$THEOS/toolchain/linux/iphone/bin/clang -arch arm64 -isysroot $SDK -target arm64-apple-ios15.0"
-        ./configure --host=arm-apple-darwin --prefix=$FFMPEG_DEST --enable-static --disable-shared \
-          --disable-frontend --disable-gtktest
+        export TOOLCHAIN=$THEOS/toolchain/linux/iphone/bin
+        export CC="$TOOLCHAIN/clang -arch arm64 -isysroot $SDK -target arm64-apple-ios15.0"
+        export CXX="$TOOLCHAIN/clang++ -arch arm64 -isysroot $SDK -target arm64-apple-ios15.0"
+        export LD="$TOOLCHAIN/ld"
+        export AR="$TOOLCHAIN/ar"
+        export RANLIB="$TOOLCHAIN/ranlib"
+        export STRIP="$TOOLCHAIN/strip"
+        # Cross-compile: skip runtime tests
+        export ac_cv_func_malloc_0_nonnull=yes
+        export ac_cv_func_realloc_0_nonnull=yes
+        export ac_cv_func_memset=yes
+        ./configure --host=arm-apple-darwin --build=x86_64-unknown-linux-gnu \
+          --prefix=$FFMPEG_DEST --enable-static --disable-shared \
+          --disable-frontend --disable-gtktest --disable-decoder
         make -j$(nproc)
         make install
         ls -la $FFMPEG_DEST/lib/libmp3lame.a
