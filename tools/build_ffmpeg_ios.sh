@@ -22,22 +22,19 @@ SRC=${FFMPEG_SRC:-/root/ffmpeg-src}
 DEST=${FFMPEG_DEST:-/root/ffmpeg-ios}
 BUILD=$(mktemp -d /tmp/ffmpeg-ios-build.XXXXXX)
 STAGE=$BUILD/stage
-LAME=$BUILD/lame
-mkdir -p "$LAME/include" "$LAME/lib"
-cp -a "$DEST/include/lame" "$LAME/include/"       # a private copy, so the old FFmpeg headers in $DEST can't leak into the build
-cp "$DEST/lib/libmp3lame.a" "$LAME/lib/"
+mkdir -p "$BUILD"
 
 cd "$BUILD"
 "$SRC/configure" --prefix="$STAGE" --enable-cross-compile --target-os=darwin --arch=aarch64 \
   --cc=$T/clang --ar=$T/ar --ranlib=$T/ranlib --nm=$T/nm --strip=$T/strip --sysroot="$SDK" \
-  --extra-cflags="-target arm64-apple-ios15.0 -isysroot $SDK -O3 -I$LAME/include" \
-  --extra-ldflags="-target arm64-apple-ios15.0 -isysroot $SDK -fuse-ld=$T/ld -L$LAME/lib" \
+  --extra-cflags="-target arm64-apple-ios15.0 -isysroot $SDK -O3" \
+  --extra-ldflags="-target arm64-apple-ios15.0 -isysroot $SDK -fuse-ld=$T/ld" \
   --disable-everything --disable-programs --disable-doc --disable-avdevice --disable-swscale --disable-postproc --disable-avfilter \
   --disable-network --disable-debug --enable-static --disable-shared --enable-pthreads --enable-swresample \
   --disable-videotoolbox --disable-audiotoolbox --disable-iconv --disable-zlib --disable-bzlib --disable-lzma --disable-securetransport \
-  --disable-xlib --disable-sdl2 --disable-libxcb --enable-libmp3lame \
+  --disable-xlib --disable-sdl2 --disable-libxcb \
   --enable-decoder='vp9,vp8,h264,hevc,opus,vorbis,aac,aac_latm,mp3float,mp3,flac,ac3,eac3,mp2float' \
-  --enable-encoder='aac,libmp3lame' \
+  --enable-encoder='aac' \
   --enable-demuxer='matroska,mpegts,mov,flv,mp3,aac,ogg,wav,flac' \
   --enable-muxer='mp4,ipod,mov,mp3' \
   --enable-parser='h264,hevc,aac,aac_latm,vp9,vp8,opus,vorbis,mpegaudio,av1,flac' \

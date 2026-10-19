@@ -292,7 +292,8 @@ static int atx_open(ATx *t, AVStream *ist, AVFormatContext *ofmt, int mp3, int b
         av_channel_layout_default(&t->dec->ch_layout, nch);
     }
 
-    const AVCodec *ec = mp3 ? avcodec_find_encoder_by_name("libmp3lame") : avcodec_find_encoder(AV_CODEC_ID_AAC);
+    const AVCodec *ec = mp3 ? avcodec_find_encoder_by_name("libmp3lame") : NULL;
+    if (!ec) ec = avcodec_find_encoder(AV_CODEC_ID_AAC);
     if (!ec) { seterr(err, n, "Audio encoder missing", 0); return VG_ERROR; }
     t->enc = avcodec_alloc_context3(ec);
     av_channel_layout_default(&t->enc->ch_layout, t->dec->ch_layout.nb_channels >= 2 ? 2 : 1);
