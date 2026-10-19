@@ -171,7 +171,9 @@ jobs:
     - name: Build HUD and Share extension
       run: |
         export THEOS=$THEOS
-        make -C hud FINALPACKAGE=1 2>&1 | tail -20
+        make -C hud clean 2>/dev/null || true
+        make -C hud FINALPACKAGE=1 2>&1 | tail -30
+        make -C share clean 2>/dev/null || true
         make -C share FINALPACKAGE=1 2>&1 | tail -20
         make -C helper FINALPACKAGE=1 2>&1 | tail -20 || true
         make -C starter FINALPACKAGE=1 2>&1 | tail -20 || true

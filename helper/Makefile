@@ -4,7 +4,7 @@ include $(THEOS)/makefiles/common.mk
 
 APPLICATION_NAME = VidGrabBubble
 VidGrabBubble_FILES = main.m
-VidGrabBubble_CFLAGS = -fobjc-arc -fno-modules -Wno-deprecated-declarations
+VidGrabBubble_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
 VidGrabBubble_FRAMEWORKS = UIKit Foundation
 VidGrabBubble_CODESIGN_FLAGS = -S
 
