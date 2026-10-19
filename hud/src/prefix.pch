@@ -1,7 +1,7 @@
 #ifdef __OBJC__
-    #import <Foundation/Foundation.h>
-    #import <UIKit/UIKit.h>
-    #import <os/log.h>
+    #include <Foundation/Foundation.h>
+    #include <UIKit/UIKit.h>
+    #include <os/log.h>
 #endif
 #define log_debug(...)
 #define log_info(...)

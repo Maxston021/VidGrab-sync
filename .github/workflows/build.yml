@@ -10,6 +10,7 @@ env:
   PYFW_DIR: /home/runner/pyios/ios-arm64
   FFMPEG_DEST: /home/runner/ffmpeg-ios
   YTDLP_VER: "2026.08.19"
+  CLANG_DISABLE_MODULES: "1"
 
 jobs:
   build:
