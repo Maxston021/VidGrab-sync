@@ -130,11 +130,17 @@ def main():
         sign('-S', binary)
     # Floating download bubble over other apps (TrollStore and jailbreak). Built from hud/.
     hud_src = os.path.join(HERE, 'hud')
-    run('make', '-C', hud_src, 'FINALPACKAGE=1')
-    hud = os.path.join(APP, 'VidGrabHUD')
-    shutil.copy2(os.path.join(hud_src, '.theos', 'obj', 'VidGrabHUD'), hud)
-    os.chmod(hud, 0o755)
-    sign('-S' + os.path.join(hud_src, 'entitlements.plist'), hud)
+    hud_built = False
+    try:
+        run('make', '-C', hud_src, 'FINALPACKAGE=1')
+        hud_built = True
+    except Exception as e:
+        print(f'Warning: HUD build failed, skipping: {e}')
+    if hud_built:
+        hud = os.path.join(APP, 'VidGrabHUD')
+        shutil.copy2(os.path.join(hud_src, '.theos', 'obj', 'VidGrabHUD'), hud)
+        os.chmod(hud, 0o755)
+        sign('-S' + os.path.join(hud_src, 'entitlements.plist'), hud)
     # Share > VidGrab (share sheet extension). Built from share/.
     share_src = os.path.join(HERE, 'share')
     run('make', '-C', share_src, 'FINALPACKAGE=1')
