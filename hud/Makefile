@@ -4,9 +4,9 @@ include $(THEOS)/makefiles/common.mk
 
 TOOL_NAME = VidGrabHUD
 VidGrabHUD_FILES = $(wildcard src/*.mm src/*.m)
-VidGrabHUD_CFLAGS = -fobjc-arc -Iheaders -Isrc -Wno-unguarded-availability-new -Wno-deprecated-declarations
+VidGrabHUD_CFLAGS = -fobjc-arc -Iheaders -Isrc -Wno-unguarded-availability-new -Wno-deprecated-declarations -isystem $(THEOS)/sdks/iPhoneOS17.0.sdk/usr/include/c++/v1
 PREFIX_HEADER =
-VidGrabHUD_CCFLAGS = -std=c++14
+VidGrabHUD_CCFLAGS = -std=c++14 -isystem $(THEOS)/sdks/iPhoneOS17.0.sdk/usr/include/c++/v1
 VidGrabHUD_LDFLAGS = -Flibraries -Llibraries
 VidGrabHUD_FRAMEWORKS = UIKit Foundation CoreGraphics QuartzCore IOKit
 VidGrabHUD_PRIVATE_FRAMEWORKS = BackBoardServices GraphicsServices SpringBoardServices
