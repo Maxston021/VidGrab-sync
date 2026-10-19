@@ -32,7 +32,15 @@ jobs:
         git clone --recursive https://github.com/theos/theos.git $THEOS
         echo "THEOS=$THEOS" >> $GITHUB_ENV
         echo "$THEOS/toolchain/linux/iphone/bin" >> $GITHUB_PATH
-        echo "Theos installed"
+        # Create symlinks for system clang in Theos toolchain dir (Linux doesn't ship its own)
+        mkdir -p $THEOS/toolchain/linux/iphone/bin
+        for tool in clang clang++ ar ranlib nm strip ld lld; do
+          if command -v $tool >/dev/null 2>&1; then
+            ln -sf $(which $tool) $THEOS/toolchain/linux/iphone/bin/$tool
+          fi
+        done
+        # Also link ld as ldid if not present
+        echo "Theos installed, toolchain:"
         ls -la $THEOS/toolchain/linux/iphone/bin/ | head -20
 
     - name: Install iOS 17.0 SDK
