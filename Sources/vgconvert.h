@@ -98,11 +98,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)cancel;
 - (void)run:(int (^)(char *err, size_t n))work completion:(void (^)(NSString * _Nullable))completion;
-- (void)remux:(NSString *)input to:(NSString *)output progress:(void (^)(double))progress completion:(void (^)(NSString * _Nullable))completion;
-- (void)mux:(NSString *)video audio:(nullable NSString *)audio to:(NSString *)output progress:(void (^)(double))progress completion:(void (^)(NSString * _Nullable, NSDictionary<NSString *, id> *))completion;
-- (void)merge:(NSString *)video audio:(NSString *)audio to:(NSString *)output progress:(void (^)(double))progress completion:(void (^)(NSString * _Nullable))completion;
-- (void)audio:(NSString *)input to:(NSString *)output mp3:(BOOL)mp3 title:(nullable NSString *)title artist:(nullable NSString *)artist progress:(void (^)(double))progress completion:(void (^)(NSString * _Nullable))completion;
-- (void)wavFrom:(NSString *)input to:(NSString *)output progress:(void (^)(double))progress completion:(void (^)(NSString * _Nullable))completion;
+- (void)remux:(NSString *)input to:(NSString *)output progress:(nullable void (^)(double))progress completion:(void (^)(NSString * _Nullable))completion;
+- (void)mux:(NSString *)video audio:(nullable NSString *)audio to:(NSString *)output progress:(nullable void (^)(double))progress completion:(void (^)(NSString * _Nullable, NSDictionary<NSString *, id> *))completion;
+- (void)merge:(NSString *)video audio:(NSString *)audio to:(NSString *)output progress:(nullable void (^)(double))progress completion:(void (^)(NSString * _Nullable))completion;
+- (void)audio:(NSString *)input to:(NSString *)output mp3:(BOOL)mp3 title:(nullable NSString *)title artist:(nullable NSString *)artist progress:(nullable void (^)(double))progress completion:(void (^)(NSString * _Nullable))completion;
+- (void)wavFrom:(NSString *)input to:(NSString *)output progress:(nullable void (^)(double))progress completion:(void (^)(NSString * _Nullable))completion;
 
 @end
 
