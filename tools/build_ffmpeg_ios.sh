@@ -58,6 +58,12 @@ make -j8 2>&1 | tail -50
 make install
 
 cp "$STAGE"/lib/libavcodec.a "$STAGE"/lib/libavformat.a "$STAGE"/lib/libavutil.a "$STAGE"/lib/libswresample.a "$DEST/lib/"
+# Run ranlib to ensure archive has index (required by lld)
+echo "=== Running ranlib on static libraries ==="
+for lib in "$DEST"/lib/*.a; do
+  echo "  ranlib $lib"
+  ranlib "$lib" 2>&1 || "$T/ranlib" "$lib" 2>&1 || true
+done
 mkdir -p "$DEST/lib/pkgconfig"
 cp "$STAGE"/lib/pkgconfig/*.pc "$DEST/lib/pkgconfig/" 2>/dev/null || true
 for d in libavcodec libavformat libavutil libswresample; do
