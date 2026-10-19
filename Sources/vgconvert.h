@@ -5,6 +5,9 @@
 
 #include <stddef.h>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-completeness"
+
 typedef int (*vg_cancel_cb)(void *ctx);
 typedef void (*vg_progress_cb)(void *ctx, double fraction);
 
@@ -13,6 +16,8 @@ typedef struct {
     char audio[32];      // codec name, "" if none (e.g. "aac", "opus")
     char container[64];  // e.g. "mpegts", "matroska,webm", "mov,mp4,m4a,3gp,3g2,mj2"
     double duration;     // seconds, 0 if unknown
+    int width;
+    int height;
 } VGProbe;
 
 enum { VG_OK = 0, VG_ERROR = -1, VG_CANCELLED = -2 };
@@ -101,5 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 #endif
+
+#pragma clang diagnostic pop
 
 #endif
