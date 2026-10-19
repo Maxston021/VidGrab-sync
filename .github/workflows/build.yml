@@ -185,13 +185,15 @@ jobs:
         cd /home/runner/app_packages
         if [ -d "yt_dlp" ]; then
           echo "Creating yt-dlp zip..."
-          zip -r $GITHUB_WORKSPACE/Resources/yt-dlp yt_dlp 2>&1 | tail -5
+          zip -r $GITHUB_WORKSPACE/Resources/yt-dlp.zip yt_dlp 2>&1 | tail -5
+          mv $GITHUB_WORKSPACE/Resources/yt-dlp.zip $GITHUB_WORKSPACE/Resources/yt-dlp
           echo "Zip created, size:"
           ls -la $GITHUB_WORKSPACE/Resources/yt-dlp
         else
           echo "WARNING: yt_dlp directory not found, creating empty zip"
           echo "placeholder" > /tmp/placeholder.txt
-          zip -j $GITHUB_WORKSPACE/Resources/yt-dlp /tmp/placeholder.txt
+          zip -j $GITHUB_WORKSPACE/Resources/yt-dlp.zip /tmp/placeholder.txt
+          mv $GITHUB_WORKSPACE/Resources/yt-dlp.zip $GITHUB_WORKSPACE/Resources/yt-dlp
         fi
         
         cd $GITHUB_WORKSPACE
