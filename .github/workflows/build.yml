@@ -180,14 +180,20 @@ jobs:
           nm "$lib" 2>&1 | grep -c "avformat_open_input" || true
         done
         make clean
-        make FINALPACKAGE=1 V=1 2>&1 | tee build.log | tail -100
+        make FINALPACKAGE=1 2>&1 | tee build.log | tail -50
         MAKE_EXIT=$?
         echo "=== Exit code: $MAKE_EXIT ==="
         if [ $MAKE_EXIT -ne 0 ]; then
-          echo "=== Build failed, showing full linker errors ==="
-          grep -A5 "ld64.lld: error" build.log | head -100
-          echo "=== Showing last 200 lines of build.log ==="
-          tail -200 build.log
+          echo "=== Build failed, showing linker command ==="
+          grep "clang++" build.log | grep -v "warning" | tail -5
+          echo "=== Running linker manually with verbose output ==="
+          LINK_CMD=$(grep "clang++.*-o.*VidGrab" build.log | tail -1)
+          if [ -n "$LINK_CMD" ]; then
+            echo "Link command: $LINK_CMD"
+            eval "$LINK_CMD -v" 2>&1 | tail -100
+          fi
+          echo "=== Showing all ld64.lld errors ==="
+          grep "ld64.lld: error" build.log | head -50
           exit 1
         fi
         echo "=== App bundle contents ==="
