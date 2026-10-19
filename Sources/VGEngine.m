@@ -11,7 +11,7 @@
 #import "VGPython.h"
 #import <AVFoundation/AVFoundation.h>
 #import "VGTranscoder.h"
-#import "VGConvert.h"
+#import "vgconvert.h"
 #import "VGCrash.h"
 #import <WebKit/WebKit.h>
 #import "VGDirectoryWatcher.h"

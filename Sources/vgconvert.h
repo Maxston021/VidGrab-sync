@@ -40,4 +40,29 @@ int vg_audio(const char *in, const char *out, int mp3, int bitrate,
              vg_progress_cb progress, vg_cancel_cb cancel, void *ctx,
              char *err, size_t errlen);
 
+#ifdef __OBJC__
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface VGConvert : NSObject
+
++ (NSDictionary<NSString *, NSString *> *)probe:(NSString *)path;
++ (NSString *)describe:(NSString *)path;
++ (NSDictionary<NSString *, id> *)tsScan:(NSString *)path;
++ (nullable NSDictionary<NSString *, id> *)tsClean:(NSString *)path to:(NSString *)output;
+
+- (void)cancel;
+- (void)run:(int (^)(char *err, size_t n))work completion:(void (^)(NSString * _Nullable))completion;
+- (void)remux:(NSString *)input to:(NSString *)output progress:(void (^)(double))progress completion:(void (^)(NSString * _Nullable))completion;
+- (void)mux:(NSString *)video audio:(nullable NSString *)audio to:(NSString *)output progress:(void (^)(double))progress completion:(void (^)(NSString * _Nullable, NSDictionary<NSString *, id> *))completion;
+- (void)merge:(NSString *)video audio:(NSString *)audio to:(NSString *)output progress:(void (^)(double))progress completion:(void (^)(NSString * _Nullable))completion;
+- (void)audio:(NSString *)input to:(NSString *)output mp3:(BOOL)mp3 title:(nullable NSString *)title artist:(nullable NSString *)artist progress:(void (^)(double))progress completion:(void (^)(NSString * _Nullable))completion;
+- (void)wavFrom:(NSString *)input to:(NSString *)output progress:(void (^)(double))progress completion:(void (^)(NSString * _Nullable))completion;
+
+@end
+
+NS_ASSUME_NONNULL_END
+#endif
+
 #endif

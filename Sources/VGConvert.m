@@ -1,4 +1,3 @@
-#import "VGConvert.h"
 #include "vgconvert.h"
 
 @interface VGConvert ()
