@@ -187,8 +187,13 @@ jobs:
         for lib in $FFMPEG_DIR/lib/*.a; do
           echo "--- $lib ---"
           file "$lib" 2>&1 || true
-          nm "$lib" 2>&1 | grep -c "avformat_open_input" || true
+          llvm-nm "$lib" 2>&1 | grep -c " T " || true
         done
+        echo "=== Finding clang runtime libraries ==="
+        find /usr/lib -name "libclang_rt*" 2>/dev/null | head -20
+        find /usr/lib/llvm* -name "libclang_rt*" 2>/dev/null | head -20
+        clang --print-resource-dir 2>&1 || true
+        ls -la $(clang --print-resource-dir)/lib/ 2>&1 | head -20 || true
         make clean
         make FINALPACKAGE=1 2>&1 | tee build.log | tail -50
         MAKE_EXIT=$?
