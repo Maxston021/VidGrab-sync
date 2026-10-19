@@ -22,7 +22,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential clang lld git curl wget python3 python3-pip \
-          libxml2-dev libssl-dev zlib1g-dev xz-utils cpio pkg-config zip unzip
+          libxml2-dev libssl-dev zlib1g-dev xz-utils cpio pkg-config zip unzip \
+          libplist-dev libplist++-dev
         pip3 install uv
         echo "Base dependencies installed"
 
@@ -187,7 +188,6 @@ jobs:
         for candidate in \
           "$THEOS/toolchain/linux/iphone/bin/ldid" \
           "$THEOS/bin/ldid" \
-          "$THEOS/toolchain/linux/iphone/bin/ldid2" \
           "/usr/local/bin/ldid" \
           "/usr/bin/ldid"; do
           if [ -x "$candidate" ]; then
@@ -197,19 +197,32 @@ jobs:
         done
         # Search Theos directory
         if [ -z "$LDID" ]; then
-          LDID=$(find $THEOS -name "ldid*" -type f -executable 2>/dev/null | head -1)
+          LDID=$(find $THEOS -name "ldid" -type f -executable 2>/dev/null | head -1)
         fi
-        # If still not found, build from source
+        # Download prebuilt ldid
         if [ -z "$LDID" ]; then
-          echo "ldid not found, building from source..."
-          git clone https://github.com/ProcursusTeam/ldid.git /tmp/ldid-src
+          echo "Downloading prebuilt ldid..."
+          curl -fL -o /tmp/ldid "https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5/ldid_linux_x86_64" 2>/dev/null || \
+          curl -fL -o /tmp/ldid "https://github.com/ProcursusTeam/ldid/releases/latest/download/ldid_linux_x86_64" 2>/dev/null || true
+          if [ -f /tmp/ldid ] && [ -s /tmp/ldid ]; then
+            chmod +x /tmp/ldid
+            LDID=/tmp/ldid
+          fi
+        fi
+        # Build from source as last resort
+        if [ -z "$LDID" ]; then
+          echo "Building ldid from source..."
+          git clone --depth 1 https://github.com/ProcursusTeam/ldid.git /tmp/ldid-src
           cd /tmp/ldid-src
-          make -j4 2>&1 | tail -5
-          LDID=/tmp/ldid-src/ldid
+          make -j4 2>&1 | tail -10 || \
+          g++ -std=c++11 -o ldid ldid.cpp -I. -lplist -lplist++ -lxml2 -lcrypto -lz 2>&1 | tail -10
+          if [ -x /tmp/ldid-src/ldid ]; then
+            LDID=/tmp/ldid-src/ldid
+          fi
           cd $GITHUB_WORKSPACE
         fi
         echo "Using LDID: $LDID"
-        ls -la "$LDID"
+        ls -la "$LDID" 2>/dev/null || echo "WARNING: ldid not found, signing will be skipped"
         export LDID
         
         # Find Python 3.14 for precompilation

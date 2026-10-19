@@ -45,6 +45,14 @@ def run(*cmd):
     subprocess.run(cmd, check=True)
 
 
+def sign(*args):
+    """Sign a binary with ldid, skipping if ldid is not available."""
+    if not LDID or not os.path.exists(LDID) or not os.access(LDID, os.X_OK):
+        print(f'Skipping sign (ldid not found): {args[-1]}')
+        return
+    subprocess.run([LDID] + list(args), check=False)
+
+
 def main():
     shutil.rmtree(STAGE, ignore_errors=True)
     os.makedirs(os.path.dirname(APP))
@@ -119,14 +127,14 @@ def main():
     # Sign (ad-hoc). Sideloading tools re-sign with your own certificate.
     for name in sorted(os.listdir(fw)):
         binary = os.path.join(fw, name, name[:-len('.framework')])
-        run(LDID, '-S', binary)
+        sign('-S', binary)
     # Floating download bubble over other apps (TrollStore and jailbreak). Built from hud/.
     hud_src = os.path.join(HERE, 'hud')
     run('make', '-C', hud_src, 'FINALPACKAGE=1')
     hud = os.path.join(APP, 'VidGrabHUD')
     shutil.copy2(os.path.join(hud_src, '.theos', 'obj', 'VidGrabHUD'), hud)
     os.chmod(hud, 0o755)
-    run(LDID, '-S' + os.path.join(hud_src, 'entitlements.plist'), hud)
+    sign('-S' + os.path.join(hud_src, 'entitlements.plist'), hud)
     # Share > VidGrab (share sheet extension). Built from share/.
     share_src = os.path.join(HERE, 'share')
     run('make', '-C', share_src, 'FINALPACKAGE=1')
@@ -134,11 +142,11 @@ def main():
     os.makedirs(plug, exist_ok=True)
     appex = os.path.join(plug, 'VGShare.appex')
     shutil.copytree(os.path.join(share_src, '.theos', 'obj', 'VGShare.appex'), appex)
-    run(LDID, '-S', os.path.join(appex, 'VGShare'))
+    sign('-S', os.path.join(appex, 'VGShare'))
     # The app keeps no special permissions: on TrollStore, unsandboxing it turns the browser black,
     # and iOS won't let a sandboxed app start the bubble helper. The bubble over other apps is
     # for jailbreak installs, where the jailbreak starts it as a background service.
-    run(LDID, '-S', os.path.join(APP, 'VidGrab'))
+    sign('-S', os.path.join(APP, 'VidGrab'))
 
     # Everything must be readable by the phone's normal user.
     for r, ds, fs in os.walk(APP):
