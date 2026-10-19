@@ -140,7 +140,7 @@ jobs:
         EOF
         # Compile all libmp3lame source files
         mkdir -p obj
-        CFLAGS="-I. -Iinclude -Ilibmp3lame -Ilibmp3lame/vector -arch arm64 -isysroot $SDK -target arm64-apple-ios15.0 -O3 -DNDEBUG"
+        CFLAGS="-I. -Iinclude -Ilibmp3lame -Ilibmp3lame/vector -arch arm64 -isysroot $SDK -target arm64-apple-ios15.0 -O3 -DNDEBUG -include stdlib.h -include string.h -include strings.h -Wno-implicit-function-declaration -Wno-shift-negative-value -Wno-tautological-pointer-compare"
         for f in libmp3lame/*.c; do
           echo "Compiling $f"
           clang $CFLAGS -c "$f" -o "obj/$(basename $f .c).o" || exit 1
