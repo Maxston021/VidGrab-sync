@@ -170,6 +170,15 @@ jobs:
         set -o pipefail
         export THEOS=$THEOS
         export PYFW_DIR=/home/runner/pyios/ios-arm64
+        export FFMPEG_DIR=/home/runner/ffmpeg-ios
+        echo "=== FFmpeg lib check ==="
+        ls -la $FFMPEG_DIR/lib/
+        echo "=== FFmpeg lib architecture ==="
+        for lib in $FFMPEG_DIR/lib/*.a; do
+          echo "--- $lib ---"
+          file "$lib" 2>&1 || true
+          nm "$lib" 2>&1 | grep -c "avformat_open_input" || true
+        done
         make clean
         make FINALPACKAGE=1 2>&1 | tee build.log | tail -80
         echo "=== Exit code: $? ==="
