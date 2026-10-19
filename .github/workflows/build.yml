@@ -25,6 +25,8 @@ jobs:
         sudo apt-get install -y build-essential clang lld git curl wget python3 python3-pip \
           libxml2-dev libssl-dev zlib1g-dev xz-utils cpio pkg-config zip unzip \
           libplist-dev libplist++-dev
+        # Install clang-15 for better module support
+        sudo apt-get install -y clang-15 lld-15 || true
         pip3 install uv
         echo "Base dependencies installed"
 
@@ -171,6 +173,14 @@ jobs:
     - name: Build HUD and Share extension
       run: |
         export THEOS=$THEOS
+        # Use clang-15 if available for better module support
+        if command -v clang-15 &> /dev/null; then
+          export CC=clang-15
+          export CXX=clang++-15
+          sudo ln -sf /usr/bin/clang-15 /usr/local/bin/clang
+          sudo ln -sf /usr/bin/clang++-15 /usr/local/bin/clang++
+          echo "Using clang-15"
+        fi
         make -C hud clean 2>/dev/null || true
         make -C hud FINALPACKAGE=1 2>&1 | tail -30
         make -C share clean 2>/dev/null || true
