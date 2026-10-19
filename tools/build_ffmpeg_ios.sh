@@ -35,7 +35,7 @@ set +e
   --disable-everything --disable-programs --disable-doc --disable-avdevice --disable-swscale --disable-postproc --disable-avfilter \
   --disable-network --disable-debug --enable-static --disable-shared --enable-pthreads --enable-swresample \
   --disable-videotoolbox --disable-audiotoolbox --disable-iconv --disable-zlib --disable-bzlib --disable-lzma --disable-securetransport \
-  --disable-xlib --disable-sdl2 --disable-libxcb \
+  --disable-xlib --disable-sdl2 --disable-libxcb --disable-neon --disable-asm \
   --enable-decoder='vp9,vp8,h264,hevc,opus,vorbis,aac,aac_latm,mp3float,mp3,flac,ac3,eac3,mp2float' \
   --enable-encoder='aac' \
   --enable-demuxer='matroska,mpegts,mov,flv,mp3,aac,ogg,wav,flac' \
