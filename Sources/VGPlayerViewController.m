@@ -2834,7 +2834,8 @@ static char kSubAssetKey;
 - (void)rotate {
     BOOL landscape = self.view.bounds.size.width > self.view.bounds.size.height;
     [self showControls];
-    if (@available(iOS 16.0, *)) {
+    NSComparisonResult versionCompare = [UIDevice.currentDevice.systemVersion compare:@"16.0" options:NSNumericSearch];
+    if (versionCompare != NSOrderedAscending) {
         UIInterfaceOrientationMask want = landscape ? UIInterfaceOrientationMaskPortrait : UIInterfaceOrientationMaskLandscape;
         UIWindowSceneGeometryPreferencesIOS *prefs = [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:want];
         [self.view.window.windowScene requestGeometryUpdateWithPreferences:prefs errorHandler:^(NSError *e) {}];
