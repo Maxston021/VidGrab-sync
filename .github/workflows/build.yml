@@ -180,8 +180,16 @@ jobs:
           nm "$lib" 2>&1 | grep -c "avformat_open_input" || true
         done
         make clean
-        make FINALPACKAGE=1 2>&1 | tee build.log | tail -80
-        echo "=== Exit code: $? ==="
+        make FINALPACKAGE=1 V=1 2>&1 | tee build.log | tail -100
+        MAKE_EXIT=$?
+        echo "=== Exit code: $MAKE_EXIT ==="
+        if [ $MAKE_EXIT -ne 0 ]; then
+          echo "=== Build failed, showing full linker errors ==="
+          grep -A5 "ld64.lld: error" build.log | head -100
+          echo "=== Showing last 200 lines of build.log ==="
+          tail -200 build.log
+          exit 1
+        fi
         echo "=== App bundle contents ==="
         ls -la .theos/obj/VidGrab.app/
         echo "=== Binary check ==="
