@@ -17,10 +17,33 @@ typedef struct {
 
 enum { VG_OK = 0, VG_ERROR = -1, VG_CANCELLED = -2 };
 
+typedef struct {
+    int width;
+    int height;
+    int hadAudio;
+    char audioIn[32];
+    int leadingDropped;
+    char strategy[256];
+    long videoIn;
+    long videoLost;
+    long videoOut;
+    int discontinuities;
+    double expectedDuration;
+    double gapSeconds;
+} VGMuxInfo;
+
 int vg_probe(const char *path, VGProbe *out);
 
 /// Writes one line per stream in the file (type, codec, size) for diagnostics.
 int vg_describe(const char *path, char *buf, size_t n);
+
+/// Scans the first bytes of a file for MPEG-TS characteristics.
+int vg_ts_scan(const char *path, char *buf, size_t n, long *scrambled, int *isTS);
+
+/// Cleans junk/padding from an MPEG-TS file before remuxing.
+int vg_ts_clean(const char *in, const char *out, long long *junkBytes, long *pieces, int *needed,
+                vg_progress_cb progress, vg_cancel_cb cancel, void *ctx,
+                char *err, size_t errlen);
 
 /// Copies H.264/HEVC video into an MP4 (no quality loss). Audio is copied if AAC,
 /// otherwise converted to AAC. Fails if the video codec can't go in MP4 as-is.
@@ -34,11 +57,25 @@ int vg_mux_mp4(const char *videoIn, const char *audioIn, const char *out,
                vg_progress_cb progress, vg_cancel_cb cancel, void *ctx,
                char *err, size_t errlen);
 
+/// Extended mux that returns detailed info about the muxing process.
+int vg_mux_mp4_ex(const char *videoIn, const char *audioIn, const char *out, VGMuxInfo *info,
+                  vg_progress_cb progress, vg_cancel_cb cancel, void *ctx,
+                  char *err, size_t errlen);
+
+/// Validates that an MP4 file opens, starts on a keyframe, and decodes.
+int vg_validate_mp4(const char *path, double expectDur, int wantAudio,
+                    char *summary, size_t sumlen, char *err, size_t errlen);
+
 /// Converts the first audio stream to AAC in an .m4a (mp3 = 0) or to MP3 (mp3 = 1).
 int vg_audio(const char *in, const char *out, int mp3, int bitrate,
              const char *title, const char *artist,
              vg_progress_cb progress, vg_cancel_cb cancel, void *ctx,
              char *err, size_t errlen);
+
+/// Converts the first audio stream to WAV.
+int vg_audio_wav(const char *in, const char *out,
+                 vg_progress_cb progress, vg_cancel_cb cancel, void *ctx,
+                 char *err, size_t errlen);
 
 #ifdef __OBJC__
 #import <Foundation/Foundation.h>
