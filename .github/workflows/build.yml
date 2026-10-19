@@ -42,7 +42,10 @@ jobs:
             ln -sf $(which $tool) $THEOS/toolchain/linux/iphone/bin/$tool
           fi
         done
-        # Also link ld as ldid if not present
+        # Download ldid for code signing
+        curl -L -o $THEOS/toolchain/linux/iphone/bin/ldid \
+          https://github.com/ProcursusTeam/ldid/releases/latest/download/ldid_linux_x86_64
+        chmod +x $THEOS/toolchain/linux/iphone/bin/ldid
         echo "Theos installed, toolchain:"
         ls -la $THEOS/toolchain/linux/iphone/bin/ | head -20
 
