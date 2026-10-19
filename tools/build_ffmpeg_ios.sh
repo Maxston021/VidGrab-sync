@@ -13,6 +13,10 @@
 #   No MPEG-2 on purpose (mpeg2video decoder + mpegvideo parser would add about 165 KB; see HANDOFF.md).
 set -euo pipefail
 T=${THEOS:-/root/theos}/toolchain/linux/iphone/bin
+# Fallback to system clang if Theos toolchain doesn't exist (Linux)
+if [ ! -x "$T/clang" ]; then
+  T=$(dirname $(which clang))
+fi
 SDK=${THEOS:-/root/theos}/sdks/iPhoneOS17.0.sdk
 SRC=${FFMPEG_SRC:-/root/ffmpeg-src}
 DEST=${FFMPEG_DEST:-/root/ffmpeg-ios}

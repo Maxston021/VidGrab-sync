@@ -115,10 +115,10 @@ jobs:
         tar -xzf lame.tar.gz
         cd lame-3.100
         export SDK=$THEOS/sdks/iPhoneOS17.0.sdk
-        export TOOLCHAIN=$THEOS/toolchain/linux/iphone/bin
-        export CC="$TOOLCHAIN/clang -arch arm64 -isysroot $SDK -target arm64-apple-ios15.0"
-        export AR="$TOOLCHAIN/ar"
-        export RANLIB="$TOOLCHAIN/ranlib"
+        # Use system clang with cross-compile flags (Theos on Linux uses system clang)
+        export CC="clang -arch arm64 -isysroot $SDK -target arm64-apple-ios15.0"
+        export AR="ar"
+        export RANLIB="ranlib"
         # Manual compile: generate config.h and compile libmp3lame
         cat > config.h << 'EOF'
         #define HAVE_STDINT_H 1
@@ -143,11 +143,11 @@ jobs:
         CFLAGS="-I. -Iinclude -Ilibmp3lame -Ilibmp3lame/vector -arch arm64 -isysroot $SDK -target arm64-apple-ios15.0 -O3 -DNDEBUG"
         for f in libmp3lame/*.c; do
           echo "Compiling $f"
-          $TOOLCHAIN/clang $CFLAGS -c "$f" -o "obj/$(basename $f .c).o" || exit 1
+          clang $CFLAGS -c "$f" -o "obj/$(basename $f .c).o" || exit 1
         done
         # Create static library
-        $TOOLCHAIN/ar rcs $FFMPEG_DEST/lib/libmp3lame.a obj/*.o
-        $TOOLCHAIN/ranlib $FFMPEG_DEST/lib/libmp3lame.a
+        ar rcs $FFMPEG_DEST/lib/libmp3lame.a obj/*.o
+        ranlib $FFMPEG_DEST/lib/libmp3lame.a
         # Install headers
         cp include/lame.h $FFMPEG_DEST/include/lame/
         ls -la $FFMPEG_DEST/lib/libmp3lame.a
