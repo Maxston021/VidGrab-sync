@@ -67,11 +67,11 @@ jobs:
       run: |
         mkdir -p /home/runner/pyios
         cd /home/runner/pyios
-        # Try Python 3.14 first, then 3.13
+        # beeware/Python-Apple-support release format: tag=3.14-b12, asset=Python-3.14-iOS-support.b12.tar.gz
         PY_URLS=(
-          "https://github.com/beeware/Python-Apple-support/releases/download/3.14.0/Python-3.14.0-iOS-support.tar.gz"
-          "https://github.com/beeware/Python-Apple-support/releases/download/3.13.0/Python-3.13.0-iOS-support.tar.gz"
-          "https://github.com/beeware/Python-Apple-support/releases/download/3.12.0/Python-3.12.0-iOS-support.tar.gz"
+          "https://github.com/beeware/Python-Apple-support/releases/download/3.14-b12/Python-3.14-iOS-support.b12.tar.gz"
+          "https://github.com/beeware/Python-Apple-support/releases/download/3.13-b16/Python-3.13-iOS-support.b16.tar.gz"
+          "https://github.com/beeware/Python-Apple-support/releases/download/3.12-b11/Python-3.12-iOS-support.b11.tar.gz"
         )
         for url in "${PY_URLS[@]}"; do
           echo "Trying: $url"
