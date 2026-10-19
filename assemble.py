@@ -82,7 +82,12 @@ def main():
 
     # Precompile so the app doesn't compile Python on every launch (the bundle is read-only)
     for d in (lib, os.path.join(APP, 'app'), pk):
-        run(PY314, '-m', 'compileall', '-q', '-j0', '--invalidation-mode', 'unchecked-hash', d)
+        result = subprocess.run([PY314, '-m', 'compileall', '-q', '-j0',
+                                 '--invalidation-mode', 'unchecked-hash', d],
+                                capture_output=True, text=True)
+        if result.returncode != 0:
+            print(f'Warning: precompile failed for {d}, continuing anyway')
+            print(result.stderr[-500:] if result.stderr else '')
 
     # Convert every .so into Frameworks/<module>.framework as iOS requires
     with open(os.path.join(XC, 'build', 'iOS-dylib-Info-template.plist'), 'rb') as f:

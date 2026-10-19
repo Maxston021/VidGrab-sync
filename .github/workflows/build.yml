@@ -171,40 +171,60 @@ jobs:
         APP_PACKAGES: /home/runner/app_packages
         PYTHON_XCFRAMEWORK: /home/runner/pyios/Python.xcframework
         YTDLP_ZIP: ${{ github.workspace }}/Resources/yt-dlp
-        LDID: ${{ env.THEOS }}/toolchain/linux/iphone/bin/ldid
-        PYTHON_BIN: python3
       run: |
-        # Debug: check what's in app_packages
-        echo "=== app_packages contents ==="
-        ls -la /home/runner/app_packages/ | head -20
-        echo "=== yt_dlp dir check ==="
-        ls -la /home/runner/app_packages/yt_dlp/ 2>/dev/null | head -5 || echo "yt_dlp dir not found"
-        
-        # Create yt-dlp zip in the location assemble.py expects
+        # Create yt-dlp zip
         mkdir -p $GITHUB_WORKSPACE/Resources
         cd /home/runner/app_packages
         if [ -d "yt_dlp" ]; then
-          echo "Creating yt-dlp zip..."
-          zip -r $GITHUB_WORKSPACE/Resources/yt-dlp.zip yt_dlp 2>&1 | tail -5
-          mv $GITHUB_WORKSPACE/Resources/yt-dlp.zip $GITHUB_WORKSPACE/Resources/yt-dlp
-          echo "Zip created, size:"
-          ls -la $GITHUB_WORKSPACE/Resources/yt-dlp
-        else
-          echo "WARNING: yt_dlp directory not found, creating empty zip"
-          echo "placeholder" > /tmp/placeholder.txt
-          zip -j $GITHUB_WORKSPACE/Resources/yt-dlp.zip /tmp/placeholder.txt
+          zip -r $GITHUB_WORKSPACE/Resources/yt-dlp.zip yt_dlp 2>&1 | tail -3
           mv $GITHUB_WORKSPACE/Resources/yt-dlp.zip $GITHUB_WORKSPACE/Resources/yt-dlp
         fi
-        
         cd $GITHUB_WORKSPACE
-        # Find ldid
-        if [ ! -x "$LDID" ]; then
-          export LDID=$(which ldid 2>/dev/null || echo "$THEOS/toolchain/linux/iphone/bin/ldid")
+        
+        # Find ldid - search common locations
+        echo "=== Searching for ldid ==="
+        LDID=""
+        for candidate in \
+          "$THEOS/toolchain/linux/iphone/bin/ldid" \
+          "$THEOS/bin/ldid" \
+          "$THEOS/toolchain/linux/iphone/bin/ldid2" \
+          "/usr/local/bin/ldid" \
+          "/usr/bin/ldid"; do
+          if [ -x "$candidate" ]; then
+            LDID="$candidate"
+            break
+          fi
+        done
+        # Search Theos directory
+        if [ -z "$LDID" ]; then
+          LDID=$(find $THEOS -name "ldid*" -type f -executable 2>/dev/null | head -1)
+        fi
+        # If still not found, build from source
+        if [ -z "$LDID" ]; then
+          echo "ldid not found, building from source..."
+          git clone https://github.com/ProcursusTeam/ldid.git /tmp/ldid-src
+          cd /tmp/ldid-src
+          make -j4 2>&1 | tail -5
+          LDID=/tmp/ldid-src/ldid
+          cd $GITHUB_WORKSPACE
         fi
         echo "Using LDID: $LDID"
-        ls -la "$LDID" 2>/dev/null || echo "ldid not found at $LDID"
+        ls -la "$LDID"
+        export LDID
         
-        python3 assemble.py 2>&1 | tail -50
+        # Find Python 3.14 for precompilation
+        echo "=== Finding Python 3.14 ==="
+        PY314=$(uv python find 3.14 2>/dev/null || echo "")
+        if [ -z "$PY314" ] || [ ! -x "$PY314" ]; then
+          echo "Python 3.14 not found, installing..."
+          uv python install 3.14
+          PY314=$(uv python find 3.14 2>/dev/null || echo "python3")
+        fi
+        echo "Using Python: $PY314"
+        $PY314 --version
+        export PYTHON_BIN="$PY314"
+        
+        python3 assemble.py 2>&1 | tail -60
         ls -la VidGrab.ipa
 
     - name: Upload IPA
